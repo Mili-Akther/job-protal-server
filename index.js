@@ -6,10 +6,19 @@ const app = express();
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+
+// for permition set on cookie
+app.use(
+  cors({
+    origin: ["http://localhost:5173"],
+    credentials:true
+  })
+);
+
 // middleware
-app.use(cors());
+// app.use(cors());
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.7pf2bll.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -37,7 +46,7 @@ async function run() {
     app.post("/jwt", async (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.JWT_SECRET, {
-        expiresIn: "1hr",
+        expiresIn: "5hr",
       });
       res
       .cookie('token', token,{
@@ -81,6 +90,7 @@ async function run() {
     app.get("/job-application", async (req, res) => {
       const email = req.query.email;
       const query = { applicant_email: email };
+      console.log('cooking cookies', req.cookies);
       const result = await jobApplicationCollection.find(query).toArray();
 
       //Poor way to aggregate data
